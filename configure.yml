@@ -1,0 +1,46 @@
+---
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+
+  - name: create db dir
+    ansible.builtin.file:
+      path: /var/lib/postgresql
+      state: directory
+      mode: '0750'
+      owner: postgres
+      group: postgres
+
+  - name: create lock dir
+    ansible.builtin.file:
+      path: /run/postgresql
+      state: directory
+      mode: '0700'
+      owner: postgres
+      group: postgres
+
+  - name: check if we're bootstrapped
+    ansible.builtin.stat:
+      path: /var/lib/postgresql/data
+    register: bootstrapped
+
+  - name: initialize database
+    become: true
+    become_user: postgres
+    shell: initdb -D /var/lib/postgresql/data
+    when: bootstrapped.stat.exists is false
+
+  - name: configure postgresql.conf
+    template:
+      src: postgresql.conf
+      dest: /var/lib/postgresql/data/postgresql.conf
+      owner: postgres
+      group: postgres
+
+  - name: configure pg_hba.conf
+    template:
+      src: pg_hba.conf
+      dest: /var/lib/postgresql/data/pg_hba.conf
+      owner: postgres
+      group: postgres
