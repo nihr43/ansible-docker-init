@@ -85,9 +85,9 @@ postgres_pass: !vault |
 initial_admin: {{ lookup('ansible.builtin.env', 'PGUSER') }}
 ```
 
----
+## usage
 
-Heres a full execution of the project:
+To run the example, jut run `make`:
 
 ```
 ~/git/ansible-docker-init$ make
