@@ -23,7 +23,7 @@ For example, lets look at vars.yml.  Inside we have an `allowed_networks` list:
 allowed_networks:
   - 10.0.0.0/8
   - 172.16.0.0/12
-  - 192.168.1.0/16
+  - 192.168.0.0/16
 ```
 
 This list is used in template pg_hba.conf to enable logins from RFC1918 prefixes:
@@ -54,7 +54,7 @@ TASK [configure pg_hba.conf] ***************************************************
 @@ -100,3 +100,4 @@
  host	all		all		10.0.0.0/8		md5
  host	all		all		172.16.0.0/12		md5
- host	all		all		192.168.1.0/16		md5
+ host	all		all		192.168.0.0/16		md5
 +host	all		all		1.2.3.4/32		md5
 
 changed: [localhost]
@@ -74,7 +74,7 @@ While I've kept this demonstration simple, there are many possibilities here.  W
 allowed_networks:
   - 10.0.0.0/8
   - 172.16.0.0/12
-  - 192.168.1.0/16
+  - 192.168.0.0/16
 
 mem_ratio: 0.5
 
@@ -175,7 +175,7 @@ TASK [configure pg_hba.conf] ***************************************************
 +
 +host	all		all		10.0.0.0/8		md5
 +host	all		all		172.16.0.0/12		md5
-+host	all		all		192.168.1.0/16		md5
++host	all		all		192.168.0.0/16		md5
 
 changed: [localhost]
 
