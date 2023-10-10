@@ -2,11 +2,11 @@
 
 This is an example usage of ansible as a docker configuration entrypoint for a legacy application.
 
-Typically pre 12-factor, pre 'cloud native' applications end up having [complicated shell scripts](https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh) acting as glue for injecting common configuration parameters as environment variables.
+Typically non-12-factor, pre 'cloud native' applications end up having [complicated shell scripts](https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh) acting as glue to allow for configuration injection via environment variables.
 
-Ansible already has good primitives for configuration and templating, so I came up with the idea of running it as an entrypoint, getting rid of as much shell as possible.
+Ansible already has good primitives for configuration and templating, so I came up with the idea of running it as an entrypoint - getting rid of as much shell as possible.
 
-The example here is postgres.  By all means, you should use the official postgres images rather than roll your own, but postgres serves as a use case for this approach.
+The example here is postgres.  By all means, you should use the official images rather than roll your own, but postgres serves as a good application to demonstrate this approach.
 
 If you look at the entrypoint script `init.sh`, you'll see we're essentially doing two things:
 
@@ -65,6 +65,27 @@ localhost                  : ok=6    changed=1    unreachable=0    failed=0    s
 + exec sudo -u postgres postgres -D /var/lib/postgresql/data
 2023-10-10 03:48:09.679 UTC [1] LOG:  starting PostgreSQL 15.4 on x86_64-alpine-linux-musl, compiled by gcc (Alpine 12.2.1_git20220924-r10) 12.2.1 20220924, 64-bit
 ```
+
+The prefix was added without having to rebuild anything.  There are of course caveats; adding a new feature altogether will require rebuilding and recreating the container, but of course this is fine if we put our data directory on a volume.
+
+While I've kept this demonstration simple, there are many possibilities here.  We can do anything ansible can do - how about inline vault secrets or environment variable retrieval:
+
+```
+allowed_networks:
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.1.0/16
+
+mem_ratio: 0.5
+
+postgres_pass: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              123456789012345678901234567890
+
+initial_admin: {{ lookup('ansible.builtin.env', 'PGUSER') }}
+```
+
+---
 
 Heres a full execution of the project:
 
